@@ -1153,7 +1153,13 @@ function App() {
 
             {/* Results Column */}
             <div className="lg:col-span-2 bg-[#151D30] border border-gray-800 p-8 rounded-3xl shadow-xl flex flex-col justify-center min-h-[400px]">
-              {h2hResult ? (
+              {h2hLoading ? (
+                <div className="text-center space-y-4 py-12 animate-fade-in">
+                  <div className="text-6xl animate-spin inline-block" style={{ animationDuration: '1.2s' }}>⚽</div>
+                  <p className="font-extrabold text-lg text-blue-400">Simulating Match Outcomes...</p>
+                  <p className="text-xs text-gray-500 font-semibold">Running CatBoost machine learning model...</p>
+                </div>
+              ) : h2hResult ? (
                 <div className="space-y-8 animate-fade-in">
                   <div className="text-center space-y-1">
                     <h3 className="text-sm text-gray-400 uppercase font-bold tracking-widest">Match Winner Prediction</h3>
@@ -1359,6 +1365,15 @@ function App() {
 
             {/* Interactive Tournament Bracket */}
             <div className="overflow-x-auto pb-6 scrollbar-thin select-none relative bg-[#151D30]/20 border border-gray-800/40 p-6 rounded-3xl backdrop-blur-md">
+              {(simLoading || monteCarloLoading) && (
+                <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-4 rounded-3xl">
+                  <div className="text-7xl animate-spin" style={{ animationDuration: '1.2s' }}>⚽</div>
+                  <p className="text-xl font-extrabold text-blue-400">
+                    {simLoading ? 'Simulating Tournament Bracket...' : 'Running 1,000 Monte Carlo Simulations...'}
+                  </p>
+                  <p className="text-xs text-gray-400 font-semibold">Please wait while the CatBoost engine computes probabilities.</p>
+                </div>
+              )}
               <div className="flex gap-0 justify-between min-w-[1300px] h-[920px] relative">
                 
                 {/* Round of 16 */}
@@ -1752,6 +1767,15 @@ function App() {
 
             {/* Interactive Tournament Bracket */}
             <div className="overflow-x-auto pb-6 scrollbar-thin select-none relative bg-[#151D30]/20 border border-gray-800/40 p-6 rounded-3xl backdrop-blur-md">
+              {(simLoading || monteCarloLoading) && (
+                <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-4 rounded-3xl">
+                  <div className="text-7xl animate-spin" style={{ animationDuration: '1.2s' }}>⚽</div>
+                  <p className="text-xl font-extrabold text-blue-400">
+                    {simLoading ? 'Simulating Tournament Bracket...' : 'Running 1,000 Monte Carlo Simulations...'}
+                  </p>
+                  <p className="text-xs text-gray-400 font-semibold">Please wait while the CatBoost engine computes probabilities.</p>
+                </div>
+              )}
               <div className="flex gap-0 justify-between min-w-[1300px] h-[920px] relative">
                 
                 {/* Round of 16 */}

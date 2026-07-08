@@ -19,6 +19,7 @@ import {
   Moon,
   X
 } from 'lucide-react';
+import { triggerCelebration } from './services/celebration';
 import { 
   ResponsiveContainer, 
   BarChart, 
@@ -263,6 +264,7 @@ function App() {
         knockout
       });
       setH2hResult(res.data);
+      triggerCelebration({ type: knockout ? 'knockout' : 'prediction' });
     } catch (error) {
       console.error(error);
       alert("Failed to get prediction from backend.");
@@ -503,6 +505,7 @@ function App() {
 
       setBracket(nextB);
       setSimMatches(tempMatches);
+      triggerCelebration({ type: 'tournament' });
     } catch (e) {
       console.error(e);
       alert("Auto simulation failed.");
@@ -521,6 +524,7 @@ function App() {
         }))
       });
       setMonteCarloResults(res.data.results);
+      triggerCelebration({ type: 'monteCarlo' });
     } catch (e) {
       console.error(e);
       alert("Monte Carlo simulation failed.");
@@ -720,6 +724,7 @@ function App() {
 
       setWcBracket(nextB);
       setWcSimMatches(tempMatches);
+      triggerCelebration({ type: 'tournament' });
     } catch (e) {
       console.error(e);
       alert("Auto simulation failed.");
@@ -744,6 +749,7 @@ function App() {
         }))
       });
       setWcMonteCarloResults(res.data.results);
+      triggerCelebration({ type: 'monteCarlo' });
     } catch (e) {
       console.error(e);
       alert("Monte Carlo simulation failed.");
@@ -1161,7 +1167,7 @@ function App() {
                 </div>
               ) : h2hResult ? (
                 <div className="space-y-8 animate-fade-in">
-                  <div className="text-center space-y-1">
+                  <div className="text-center space-y-2 p-6 bg-gray-900/60 border border-gray-800/80 rounded-2xl winner-card-celebrate">
                     <h3 className="text-sm text-gray-400 uppercase font-bold tracking-widest">Match Winner Prediction</h3>
                     <h2 className="text-4xl font-extrabold text-blue-400 bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
                       <span>{getFlagEmoji(h2hResult.predicted_winner)}</span>
@@ -1645,7 +1651,7 @@ function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Champion summary info */}
               {simMatches['champ'] && (
-                <div className="lg:col-span-1 bg-[#151D30] border border-gray-800 p-6 rounded-3xl space-y-4">
+                <div className="lg:col-span-1 bg-[#151D30] border border-gray-800 p-6 rounded-3xl space-y-4 winner-card-celebrate">
                   <h3 className="text-base font-black text-white flex items-center gap-2 border-b border-gray-800 pb-3">
                     <Trophy className="w-5 h-5 text-amber-500" />
                     🏆 FIFA World Cup Champion
@@ -2046,7 +2052,7 @@ function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Champion summary info */}
               {wcSimMatches['champ'] && (
-                <div className="lg:col-span-1 bg-[#151D30] border border-gray-800 p-6 rounded-3xl space-y-4">
+                <div className="lg:col-span-1 bg-[#151D30] border border-gray-800 p-6 rounded-3xl space-y-4 winner-card-celebrate">
                   <h3 className="text-base font-black text-white flex items-center gap-2 border-b border-gray-800 pb-3">
                     <Trophy className="w-5 h-5 text-amber-500" />
                     🏆 FIFA World Cup Champion

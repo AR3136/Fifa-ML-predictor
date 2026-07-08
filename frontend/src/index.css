@@ -122,3 +122,55 @@ body:not(.dark-mode) .bg-gray-800\/20 {
 body:not(.dark-mode) .bg-amber-500\/5 {
   background-color: rgba(245, 158, 11, 0.05) !important;
 }
+
+/* Premium Winner Card animations & styles */
+.winner-card-celebrate {
+  animation: winnerFadeScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  position: relative;
+}
+
+.winner-card-celebrate::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899, #10B981, #F59E0B);
+  background-size: 400% 400%;
+  z-index: -1;
+  animation: premiumGlowBorder 4s linear infinite;
+  opacity: 1;
+}
+
+@keyframes winnerFadeScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes premiumGlowBorder {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Reduced motion settings */
+@media (prefers-reduced-motion: reduce) {
+  .winner-card-celebrate {
+    animation: winnerSimpleFade 0.4s ease-in-out forwards !important;
+  }
+  .winner-card-celebrate::after {
+    animation: none !important;
+    background: #3B82F6 !important; /* solid highlight instead of animation */
+    opacity: 0.5;
+  }
+}
+
+@keyframes winnerSimpleFade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}

@@ -19,6 +19,9 @@ def test_health():
     data = response.json()
     assert data["status"] == "healthy"
     assert "model_loaded" in data
+    assert "model_version" in data
+    assert "model_path" in data
+    assert "model_exists" in data
     assert "penalty_model_loaded" in data
     assert "team_count" in data
     assert "version" in data

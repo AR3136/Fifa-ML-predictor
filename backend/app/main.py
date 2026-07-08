@@ -22,9 +22,14 @@ def get_teams():
 @app.get("/api/v1/health")
 def health_check_override():
     from app.api.v1.endpoints.predict import prediction_service
+    from app.services.prediction_service import MODEL_PATH
+    import os
     return {
         "status": "healthy",
         "model_loaded": prediction_service.model is not None,
+        "model_version": f"CatBoost-{prediction_service.model_name}",
+        "model_path": MODEL_PATH,
+        "model_exists": os.path.exists(MODEL_PATH),
         "penalty_model_loaded": prediction_service.so_model is not None,
         "team_count": len(analytics_service.get_all_teams()),
         "version": "1.0.0"

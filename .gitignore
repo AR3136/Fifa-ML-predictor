@@ -59,6 +59,8 @@ Thumbs.db
 /models/*.pkl
 /models/*.h5
 /models/*.onnx
+!/models/best_model.joblib
+!/models/shootout_model.joblib
 !/datasets/raw/eloratings.csv
 !/datasets/raw/fifa_mens_rank.csv
 !/datasets/raw/former_names.csv

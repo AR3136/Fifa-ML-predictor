@@ -36,75 +36,54 @@ SHOOTOUTS_DATA_PATH = resolve_path("datasets/processed/shootouts.csv")
 
 class PredictionService:
     def __init__(self):
+        import logging
+        logger = logging.getLogger("uvicorn.error")
+
         # Load main model bundle
         try:
-            if os.path.exists(MODEL_PATH):
-                self.bundle = joblib.load(MODEL_PATH)
-                self.model = self.bundle['model']
-                self.scaler = self.bundle.get('scaler')
-                self.features = self.bundle['features']
-                self.model_name = self.bundle.get('model_name', 'Unknown')
-                print("✓ Match model loaded")
-                if self.scaler is not None:
-                    print("✓ Encoder loaded")
-            else:
-                self.model = None
-                self.features = []
-                self.model_name = "None"
-                print("✗ Match model not found at path:", MODEL_PATH)
+            self.bundle = joblib.load(MODEL_PATH)
+            self.model = self.bundle['model']
+            self.scaler = self.bundle.get('scaler')
+            self.features = self.bundle['features']
+            self.model_name = self.bundle.get('model_name', 'Unknown')
+            logger.info("✓ Match model loaded successfully")
+            print("✓ Match model loaded")
+            if self.scaler is not None:
+                print("✓ Encoder loaded")
         except Exception as e:
-            self.model = None
-            self.features = []
-            self.model_name = "None"
-            print(f"✗ Failed to load match model:")
-            traceback.print_exc()
+            logger.exception("Failed to load match model")
+            raise RuntimeError(f"Failed to load match model from {MODEL_PATH}") from e
 
         # Load shootout model bundle
         try:
-            if os.path.exists(SHOOTOUT_MODEL_PATH):
-                self.so_bundle = joblib.load(SHOOTOUT_MODEL_PATH)
-                self.so_model = self.so_bundle['model']
-                self.so_features = self.so_bundle['features']
-                self.so_model_name = self.so_bundle.get('model_name', 'Unknown')
-                print("✓ Penalty model loaded")
-            else:
-                self.so_model = None
-                self.so_features = []
-                self.so_model_name = "None"
-                print("✗ Penalty model not found at path:", SHOOTOUT_MODEL_PATH)
+            self.so_bundle = joblib.load(SHOOTOUT_MODEL_PATH)
+            self.so_model = self.so_bundle['model']
+            self.so_features = self.so_bundle['features']
+            self.so_model_name = self.so_bundle.get('model_name', 'Unknown')
+            logger.info("✓ Penalty model loaded successfully")
+            print("✓ Penalty model loaded")
         except Exception as e:
-            self.so_model = None
-            self.so_features = []
-            self.so_model_name = "None"
-            print(f"✗ Failed to load penalty model:")
-            traceback.print_exc()
+            logger.exception("Failed to load penalty model")
+            raise RuntimeError(f"Failed to load penalty model from {SHOOTOUT_MODEL_PATH}") from e
             
         # Load dataset to extract team history/latest features
         try:
-            if os.path.exists(FEATURES_PATH):
-                self.df = pd.read_csv(FEATURES_PATH)
-                self.df['date'] = pd.to_datetime(self.df['date'])
-                print("✓ Team database loaded")
-                print("✓ Feature engineering initialized")
-            else:
-                self.df = None
-                print("✗ Features database not found at path:", FEATURES_PATH)
+            self.df = pd.read_csv(FEATURES_PATH)
+            self.df['date'] = pd.to_datetime(self.df['date'])
+            logger.info("✓ Team database loaded successfully")
+            print("✓ Team database loaded")
+            print("✓ Feature engineering initialized")
         except Exception as e:
-            self.df = None
-            print(f"✗ Failed to load features database:")
-            traceback.print_exc()
+            logger.exception("Failed to load features database")
+            raise RuntimeError(f"Failed to load features database from {FEATURES_PATH}") from e
 
         # Load shootout data for historical stats
         try:
-            if os.path.exists(SHOOTOUTS_DATA_PATH):
-                self.so_df = pd.read_csv(SHOOTOUTS_DATA_PATH)
-                self.so_df['date'] = pd.to_datetime(self.so_df['date'])
-            else:
-                self.so_df = None
+            self.so_df = pd.read_csv(SHOOTOUTS_DATA_PATH)
+            self.so_df['date'] = pd.to_datetime(self.so_df['date'])
         except Exception as e:
-            self.so_df = None
-            print(f"✗ Failed to load shootouts database:")
-            traceback.print_exc()
+            logger.exception("Failed to load shootouts database")
+            raise RuntimeError(f"Failed to load shootouts database from {SHOOTOUTS_DATA_PATH}") from e
 
 
     def _resolve_team_name(self, team_name: str) -> str:
@@ -217,15 +196,6 @@ class PredictionService:
 
     def predict_match_outcome(self, home_team: str, away_team: str, neutral_venue: bool = False) -> dict:
         """Generates predictions for a match between home_team and away_team."""
-        if self.model is None:
-            return {
-                "home_win_prob": 0.33,
-                "draw_prob": 0.34,
-                "away_win_prob": 0.33,
-                "predicted_winner": "Model not loaded",
-                "model_version": "No Model"
-            }
-            
         # 1. Fetch latest team stats
         h_stats = self.get_latest_team_stats(home_team)
         a_stats = self.get_latest_team_stats(away_team)

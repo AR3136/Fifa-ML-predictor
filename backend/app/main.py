@@ -15,6 +15,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Set CORS origins
 origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS]
 origins.extend([
+    "https://fifa-ml-predictor.vercel.app",
     "http://localhost:3000",
     "http://localhost:5173",
     "http://127.0.0.1:3000",

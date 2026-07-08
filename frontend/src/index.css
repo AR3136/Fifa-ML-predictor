@@ -24,3 +24,101 @@ body {
 #root {
   width: 100%;
 }
+
+/* Light Mode Overrides */
+body:not(.dark-mode) {
+  background-color: #F3F4F6 !important;
+  color: #111827 !important;
+}
+
+body:not(.dark-mode) .bg-\[\#151D30\] {
+  background-color: #ffffff !important;
+}
+
+body:not(.dark-mode) .bg-\[\#0B0F19\] {
+  background-color: #F3F4F6 !important;
+}
+
+body:not(.dark-mode) .bg-\[\#0B0F19\]\/60 {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+body:not(.dark-mode) .bg-\[\#151D30\]\/90 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+body:not(.dark-mode) .bg-\[\#151D30\]\/95 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body:not(.dark-mode) .bg-\[\#0B0F19\]\/40 {
+  background-color: rgba(243, 244, 246, 0.6) !important;
+}
+
+body:not(.dark-mode) .border-gray-800 {
+  border-color: #E5E7EB !important;
+}
+
+body:not(.dark-mode) .border-gray-800\/80 {
+  border-color: #E5E7EB !important;
+}
+
+body:not(.dark-mode) .border-gray-800\/60 {
+  border-color: #E5E7EB !important;
+}
+
+body:not(.dark-mode) .border-gray-800\/40 {
+  border-color: #F3F4F6 !important;
+}
+
+body:not(.dark-mode) .border-gray-800\/20 {
+  border-color: #F3F4F6 !important;
+}
+
+body:not(.dark-mode) .text-white {
+  color: #111827 !important;
+}
+
+body:not(.dark-mode) .text-gray-400 {
+  color: #4B5563 !important;
+}
+
+body:not(.dark-mode) .text-gray-300 {
+  color: #374151 !important;
+}
+
+body:not(.dark-mode) .text-gray-200 {
+  color: #1F2937 !important;
+}
+
+body:not(.dark-mode) .hover\:bg-gray-800\/40:hover {
+  background-color: rgba(229, 231, 235, 0.5) !important;
+}
+
+body:not(.dark-mode) .text-gray-500 {
+  color: #6B7280 !important;
+}
+
+body:not(.dark-mode) input {
+  background-color: #F3F4F6 !important;
+  color: #111827 !important;
+  border-color: #D1D5DB !important;
+}
+
+body:not(.dark-mode) input::placeholder {
+  color: #9CA3AF !important;
+}
+
+body:not(.dark-mode) select {
+  background-color: #F3F4F6 !important;
+  color: #111827 !important;
+  border-color: #D1D5DB !important;
+}
+
+body:not(.dark-mode) .bg-gray-800\/20 {
+  background-color: rgba(229, 231, 235, 0.5) !important;
+}
+
+body:not(.dark-mode) .bg-amber-500\/5 {
+  background-color: rgba(245, 158, 11, 0.05) !important;
+}

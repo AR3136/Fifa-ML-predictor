@@ -15,6 +15,8 @@ import {
   Trophy,
   Play,
   Sparkles,
+  Sun,
+  Moon,
   X
 } from 'lucide-react';
 import { 
@@ -55,6 +57,15 @@ const getFlagEmoji = (country: string) => {
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'h2h' | 'simulator' | 'wc2026' | 'team' | 'model' | 'settings'>('home');
   const [darkMode, setDarkMode] = useState<boolean>(true);
+  
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [darkMode]);
+
   const [healthStatus, setHealthStatus] = useState<string>("Checking...");
   const [teamsList, setTeamsList] = useState<string[]>(TEAMS_LIST);
   
@@ -808,9 +819,18 @@ function App() {
           </div>
           <span className="font-black text-base bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">FIFAPredict</span>
         </div>
-        <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${healthStatus === 'Online' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-          {healthStatus}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${healthStatus === 'Online' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+            {healthStatus}
+          </span>
+          <button 
+            onClick={() => setDarkMode(!darkMode)}
+            className="p-1.5 rounded-lg bg-gray-800/40 border border-gray-800/60 text-gray-400 hover:text-white transition-all shrink-0"
+            title="Toggle Light/Dark Mode"
+          >
+            {darkMode ? <Sun className="w-3.5 h-3.5 text-amber-500" /> : <Moon className="w-3.5 h-3.5 text-indigo-400" />}
+          </button>
+        </div>
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
@@ -861,16 +881,25 @@ function App() {
 
       {/* Desktop Sidebar Navigation */}
       <aside className={`hidden md:flex md:w-64 border-r flex-col shrink-0 sticky top-0 h-screen z-40 ${darkMode ? 'border-gray-800 bg-[#151D30]/90' : 'border-gray-200 bg-white/90'} backdrop-blur-md`}>
-        <div className="p-6 flex items-center gap-3 border-b border-gray-800">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Award className="w-6 h-6 text-white animate-pulse" />
+        <div className="p-6 flex items-center justify-between border-b border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Award className="w-6 h-6 text-white animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-white bg-clip-text text-transparent">
+                FIFAPredict
+              </h1>
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">AI Platform</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-white bg-clip-text text-transparent">
-              FIFAPredict
-            </h1>
-            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">AI Platform</p>
-          </div>
+          <button 
+            onClick={() => setDarkMode(!darkMode)}
+            className="p-2 rounded-xl bg-gray-800/60 hover:bg-gray-800 border border-gray-800/80 text-gray-400 hover:text-white transition-all shrink-0"
+            title="Toggle Light/Dark Mode"
+          >
+            {darkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-400" />}
+          </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -1199,7 +1228,11 @@ function App() {
                             >
                               <XAxis type="number" stroke="#6B7280" tick={{ fontSize: 9 }} />
                               <YAxis dataKey="name" type="category" stroke="#6B7280" tick={{ fontSize: 9 }} width={120} />
-                              <Tooltip />
+                              <Tooltip 
+                                contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
+                                itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
+                                labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
+                              />
                               <Bar dataKey="Contribution" fill="#3B82F6" radius={[0, 4, 4, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
@@ -1595,7 +1628,11 @@ function App() {
                         <BarChart data={monteCarloResults.slice(0, 8)}>
                           <XAxis dataKey="team" stroke="#6B7280" tick={{ fontSize: 9 }} />
                           <YAxis stroke="#6B7280" tick={{ fontSize: 9 }} />
-                          <Tooltip />
+                          <Tooltip 
+                            contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
+                            itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
+                            labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
+                          />
                           <Bar dataKey="champion" name="Champion %" fill="#F59E0B" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -1983,7 +2020,11 @@ function App() {
                         <BarChart data={wcMonteCarloResults.slice(0, 8)}>
                           <XAxis dataKey="team" stroke="#6B7280" tick={{ fontSize: 9 }} />
                           <YAxis stroke="#6B7280" tick={{ fontSize: 9 }} />
-                          <Tooltip />
+                          <Tooltip 
+                            contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
+                            itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
+                            labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
+                          />
                           <Bar dataKey="champion" name="Champion %" fill="#F59E0B" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -2331,7 +2372,12 @@ function App() {
                               <Cell fill="#6B7280" />
                               <Cell fill="#EF4444" />
                             </Pie>
-                            <Tooltip formatter={(v: any) => `${(v * 100).toFixed(1)}%`} />
+                            <Tooltip 
+                              formatter={(v: any) => `${(v * 100).toFixed(1)}%`}
+                              contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
+                              itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
+                              labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
@@ -2351,7 +2397,11 @@ function App() {
                           <BarChart data={teamStats.goal_distribution}>
                             <XAxis dataKey="goals" stroke="#6B7280" />
                             <YAxis stroke="#6B7280" />
-                            <Tooltip />
+                            <Tooltip 
+                              contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
+                              itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
+                              labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
+                            />
                             <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>

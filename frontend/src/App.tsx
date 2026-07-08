@@ -17,7 +17,9 @@ import {
   Sparkles,
   Sun,
   Moon,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { triggerCelebration } from './services/celebration';
 import { 
@@ -70,6 +72,7 @@ function App() {
   }, [darkMode]);
 
   const [teamsList, setTeamsList] = useState<string[]>(TEAMS_LIST);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // H2H Form state
   const [homeTeam, setHomeTeam] = useState("France");
@@ -920,108 +923,140 @@ function App() {
       </nav>
 
       {/* Desktop Sidebar Navigation */}
-      <aside className={`hidden md:flex md:w-64 border-r flex-col shrink-0 sticky top-0 h-screen z-40 ${darkMode ? 'border-gray-800 bg-[#151D30]/90' : 'border-gray-200 bg-white/90'} backdrop-blur-md`}>
-        <div className="p-6 flex items-center justify-between border-b border-gray-800">
+      {/* Desktop Sidebar Navigation */}
+      <aside className={`hidden md:flex ${sidebarCollapsed ? 'md:w-20' : 'md:w-64'} border-r flex-col shrink-0 sticky top-0 h-screen z-40 transition-all duration-300 ${darkMode ? 'border-gray-800 bg-[#151D30]/90' : 'border-gray-200 bg-white/90'} backdrop-blur-md`}>
+        <div className={`p-4 flex ${sidebarCollapsed ? 'flex-col items-center gap-4' : 'items-center justify-between'} border-b ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
               <Award className="w-6 h-6 text-white animate-pulse" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-white bg-clip-text text-transparent">
-                FIFAPredict
-              </h1>
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">AI Platform</p>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="animate-fade-in">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-white bg-clip-text text-transparent">
+                  FIFAPredict
+                </h1>
+                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">AI Platform</p>
+              </div>
+            )}
           </div>
-          <button 
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-xl bg-gray-800/60 hover:bg-gray-800 border border-gray-800/80 text-gray-400 hover:text-white transition-all shrink-0"
-            title="Toggle Light/Dark Mode"
-          >
-            {darkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-400" />}
-          </button>
+          <div className={`flex ${sidebarCollapsed ? 'flex-col gap-2' : 'gap-1.5'}`}>
+            <button 
+              onClick={() => setDarkMode(!darkMode)}
+              className={`p-2 rounded-xl border transition-all shrink-0 ${darkMode ? 'bg-gray-800/60 hover:bg-gray-800 border-gray-800 text-gray-400 hover:text-white' : 'bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-600 hover:text-gray-900'}`}
+              title="Toggle Light/Dark Mode"
+            >
+              {darkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+            </button>
+            <button 
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className={`p-2 rounded-xl border transition-all shrink-0 ${darkMode ? 'bg-gray-800/60 hover:bg-gray-800 border-gray-800 text-gray-400 hover:text-white' : 'bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-600 hover:text-gray-900'}`}
+              title={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
           <button 
             onClick={() => setActiveTab('home')}
-            className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition-all ${activeTab === 'home' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            className={`w-full px-4 py-3 rounded-xl flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} text-sm font-semibold transition-all ${activeTab === 'home' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            title="Home"
           >
-            <HomeIcon className="w-5 h-5" />
-            Home
+            <HomeIcon className="w-5 h-5 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="animate-fade-in">Home</span>}
           </button>
           <button 
             onClick={() => setActiveTab('h2h')}
-            className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition-all ${activeTab === 'h2h' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            className={`w-full px-4 py-3 rounded-xl flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} text-sm font-semibold transition-all ${activeTab === 'h2h' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            title="Head-to-Head Predictor"
           >
-            <Activity className="w-5 h-5" />
-            Head-to-Head
+            <Activity className="w-5 h-5 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="animate-fade-in">Head-to-Head</span>}
           </button>
           <button 
             onClick={() => setActiveTab('simulator')}
-            className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition-all ${activeTab === 'simulator' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            className={`w-full px-4 py-3 rounded-xl flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} text-sm font-semibold transition-all ${activeTab === 'simulator' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            title="Tournament Simulator"
           >
-            <Trophy className="w-5 h-5" />
-            Simulator
+            <Trophy className="w-5 h-5 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="animate-fade-in">Simulator</span>}
           </button>
           <button 
             onClick={() => setActiveTab('wc2026')}
-            className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition-all ${activeTab === 'wc2026' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            className={`w-full px-4 py-3 rounded-xl flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} text-sm font-semibold transition-all ${activeTab === 'wc2026' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            title="2026 World Cup Bracket"
           >
-            <Trophy className="w-5 h-5 text-amber-500" />
-            2026 World Cup
+            <Trophy className="w-5 h-5 text-amber-500 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="animate-fade-in">2026 World Cup</span>}
           </button>
           <button 
             onClick={() => setActiveTab('team')}
-            className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition-all ${activeTab === 'team' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            className={`w-full px-4 py-3 rounded-xl flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} text-sm font-semibold transition-all ${activeTab === 'team' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            title="Team Analytics & History"
           >
-            <Users className="w-5 h-5" />
-            Team Analytics
+            <Users className="w-5 h-5 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="animate-fade-in">Team Analytics</span>}
           </button>
           <button 
             onClick={() => setActiveTab('model')}
-            className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition-all ${activeTab === 'model' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            className={`w-full px-4 py-3 rounded-xl flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} text-sm font-semibold transition-all ${activeTab === 'model' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            title="Model Diagnostics & Performance"
           >
-            <Cpu className="w-5 h-5" />
-            Model Insights
+            <Cpu className="w-5 h-5 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="animate-fade-in">Model Insights</span>}
           </button>
           <button 
             onClick={() => setActiveTab('settings')}
-            className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition-all ${activeTab === 'settings' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            className={`w-full px-4 py-3 rounded-xl flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} text-sm font-semibold transition-all ${activeTab === 'settings' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10' : 'text-gray-400 hover:text-white hover:bg-gray-800/40'}`}
+            title="Platform Settings"
           >
-            <SettingsIcon className="w-5 h-5" />
-            Settings
+            <SettingsIcon className="w-5 h-5 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="animate-fade-in">Settings</span>}
           </button>
         </nav>
 
         {/* Status Indicator */}
-        <div className="p-4 border-t border-gray-800/60 text-[10px] space-y-2">
-          <div className="flex flex-col gap-1.5 font-bold">
-            {healthStatus === 'Online' ? (
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">API Connection:</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
-                    🟢 API Online
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Model Status:</span>
-                  <span className={`px-2 py-0.5 rounded-full ${isModelLoaded ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-                    {isModelLoaded ? '🟢 Model Loaded' : '🔴 Model Not Loaded'}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">API Connection:</span>
-                <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">
-                  🔴 API Offline
-                </span>
+        <div className={`p-4 border-t ${darkMode ? 'border-gray-800/60' : 'border-gray-200'} text-[10px] space-y-2`}>
+          {sidebarCollapsed ? (
+            <div className="flex flex-col gap-2 font-bold items-center">
+              <span className="cursor-help" title={healthStatus === 'Online' ? 'API Online' : 'API Offline'}>
+                {healthStatus === 'Online' ? '🟢' : '🔴'}
+              </span>
+              <span className="cursor-help" title={isModelLoaded ? 'Model Loaded' : 'Model Not Loaded'}>
+                {isModelLoaded ? '🧠' : '⚠️'}
+              </span>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-1.5 font-bold">
+                {healthStatus === 'Online' ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">API Connection:</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                        🟢 API Online
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">Model Status:</span>
+                      <span className={`px-2 py-0.5 rounded-full ${isModelLoaded ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+                        {isModelLoaded ? '🟢 Model Loaded' : '🔴 Model Not Loaded'}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">API Connection:</span>
+                    <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">
+                      🔴 API Offline
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className="text-gray-500 text-[9px] pt-1">Version: 1.0.0-production</div>
+              <div className="text-gray-500 text-[9px] pt-1 text-center">Version: 1.0.0-production</div>
+            </>
+          )}
         </div>
       </aside>
 

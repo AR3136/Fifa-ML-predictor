@@ -172,3 +172,19 @@ body:not(.dark-mode) .bg-amber-500\/5 {
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
+
+/* Highlight pulse animation for automatic predictions */
+@keyframes cardHighlightGlow {
+  0%, 100% { 
+    border-color: rgba(59, 130, 246, 0.4); 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+  }
+  50% { 
+    border-color: #F59E0B; 
+    box-shadow: 0 0 25px 6px rgba(245, 158, 11, 0.55); 
+  }
+}
+
+.highlight-pulse {
+  animation: cardHighlightGlow 1.5s ease-in-out 2; /* 3 seconds duration (1.5s * 2) */
+}

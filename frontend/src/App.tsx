@@ -207,6 +207,82 @@ function App() {
     labelStyle: darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }
   };
 
+  const [autoPredictTrigger, setAutoPredictTrigger] = useState<any>(null);
+
+  const isRealTeam = (name: string) => {
+    return name && 
+      !name.includes("Winner") && 
+      !name.includes("Pending") && 
+      !name.includes("Loser") && 
+      !name.includes("SF");
+  };
+
+  const openHeadToHead = (params: {
+    homeTeam: string;
+    awayTeam: string;
+    tournament: string;
+    knockout: boolean;
+    neutralGround: boolean;
+  }) => {
+    if (!isRealTeam(params.homeTeam) || !isRealTeam(params.awayTeam)) return;
+
+    setHomeTeam(params.homeTeam);
+    setAwayTeam(params.awayTeam);
+    setTournament(params.tournament);
+    setKnockout(params.knockout);
+    setNeutralGround(params.neutralGround);
+    setActiveTab('h2h');
+
+    setAutoPredictTrigger({
+      homeTeam: params.homeTeam,
+      awayTeam: params.awayTeam,
+      tournament: params.tournament,
+      knockout: params.knockout,
+      neutralGround: params.neutralGround,
+      timestamp: Date.now()
+    });
+  };
+
+  useEffect(() => {
+    if (activeTab === 'h2h' && autoPredictTrigger) {
+      const runAutoPredict = async () => {
+        setH2hLoading(true);
+        try {
+          const res = await api.post('api/v1/predict', {
+            home_team: autoPredictTrigger.homeTeam,
+            away_team: autoPredictTrigger.awayTeam,
+            tournament: autoPredictTrigger.tournament,
+            neutral_ground: autoPredictTrigger.neutralGround,
+            knockout: autoPredictTrigger.knockout
+          });
+          setH2hResult(res.data);
+          
+          triggerCelebration({ type: autoPredictTrigger.knockout ? 'knockout' : 'prediction' });
+
+          setTimeout(() => {
+            const card = document.getElementById("h2h-prediction-card");
+            if (card) {
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              card.classList.add("highlight-pulse");
+              setTimeout(() => {
+                card.classList.remove("highlight-pulse");
+              }, 3000);
+            }
+          }, 200);
+
+        } catch (error) {
+          console.error(error);
+          alert("Failed to run auto-prediction.");
+        } finally {
+          setH2hLoading(false);
+          setAutoPredictTrigger(null);
+        }
+      };
+
+      runAutoPredict();
+    }
+  }, [activeTab, autoPredictTrigger]);
+
   // Check backend health and fetch dynamic teams list
   useEffect(() => {
     getHealth()
@@ -1201,7 +1277,7 @@ function App() {
             </div>
 
             {/* Results Column */}
-            <div className="lg:col-span-2 bg-[#151D30] border border-gray-800 p-8 rounded-3xl shadow-xl flex flex-col justify-center min-h-[400px]">
+            <div id="h2h-prediction-card" className="lg:col-span-2 bg-[#151D30] border border-gray-800 p-8 rounded-3xl shadow-xl flex flex-col justify-center min-h-[400px]">
               {h2hLoading ? (
                 <div className="text-center space-y-4 py-12 animate-fade-in">
                   <div className="text-6xl animate-spin inline-block" style={{ animationDuration: '1.2s' }}>⚽</div>
@@ -1429,11 +1505,25 @@ function App() {
                     const isAwayWinner = pred && pred.winner === m.awayTeam;
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${pred ? 'shadow-md shadow-indigo-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-1.5">
                           <span>Match {m.id}</span>
@@ -1499,11 +1589,25 @@ function App() {
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
                     const isPlaceholder = m.homeTeam.includes("Winner") || m.awayTeam.includes("Winner");
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''} ${pred ? 'shadow-md shadow-indigo-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-1.5">
                           <span>Match {m.id}</span>
@@ -1561,11 +1665,25 @@ function App() {
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
                     const isPlaceholder = m.homeTeam.includes("Winner") || m.awayTeam.includes("Winner");
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''} ${pred ? 'shadow-md shadow-indigo-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-1.5">
                           <span>Match {m.id}</span>
@@ -1618,11 +1736,25 @@ function App() {
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
                     const isPlaceholder = m.homeTeam.includes("Winner") || m.awayTeam.includes("Winner");
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-4.5 rounded-3xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-amber-500/40 hover:border-amber-400 shadow-xl shadow-amber-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-4.5 rounded-3xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-amber-500/40 hover:border-amber-400 shadow-xl shadow-amber-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''} ${pred ? 'shadow-xl shadow-amber-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-2">
                           <span>Final</span>
@@ -1747,17 +1879,36 @@ function App() {
                         <span className="text-center">SF %</span>
                         <span className="text-center">Champ %</span>
                       </div>
-                      {monteCarloResults.map((r: any, idx: number) => (
-                        <div key={idx} className="grid grid-cols-5 items-center bg-[#0B0F19]/40 border border-gray-800/40 p-2.5 rounded-xl text-xs font-semibold text-gray-200">
-                          <span className="col-span-2 flex items-center gap-1.5 font-bold">
-                            <span>{getFlagEmoji(r.team)}</span>
-                            <span>{r.team}</span>
-                          </span>
-                          <span className="text-center">{r.qf}%</span>
-                          <span className="text-center">{r.sf}%</span>
-                          <span className="text-center text-amber-400 font-black">{r.champion}%</span>
-                        </div>
-                      ))}
+                      {monteCarloResults.map((r: any, idx: number) => {
+                        const match = bracket.r16.find((m: any) => m.homeTeam === r.team || m.awayTeam === r.team);
+                        const opponent = match ? (match.homeTeam === r.team ? match.awayTeam : match.homeTeam) : "";
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => {
+                              if (match) {
+                                openHeadToHead({
+                                  homeTeam: r.team,
+                                  awayTeam: opponent,
+                                  tournament: "FIFA World Cup",
+                                  knockout: true,
+                                  neutralGround: true
+                                });
+                              }
+                            }}
+                            className="grid grid-cols-5 items-center bg-[#0B0F19]/40 hover:bg-indigo-600/10 border border-gray-800/40 hover:border-indigo-500/30 p-2.5 rounded-xl text-xs font-semibold text-gray-200 cursor-pointer transition-all hover:scale-[1.01]"
+                            title={match ? `Click to analyze ${r.team} vs ${opponent} in Head-to-Head.` : undefined}
+                          >
+                            <span className="col-span-2 flex items-center gap-1.5 font-bold">
+                              <span>{getFlagEmoji(r.team)}</span>
+                              <span>{r.team}</span>
+                            </span>
+                            <span className="text-center">{r.qf}%</span>
+                            <span className="text-center">{r.sf}%</span>
+                            <span className="text-center text-amber-400 font-black">{r.champion}%</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -1827,11 +1978,25 @@ function App() {
                     const isAwayWinner = pred && pred.winner === m.awayTeam;
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800/80 hover:border-gray-700'}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800/80 hover:border-gray-700'} ${pred ? 'shadow-md shadow-indigo-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-1.5">
                           <span>Match {m.id}</span>
@@ -1897,11 +2062,25 @@ function App() {
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
                     const isPlaceholder = m.homeTeam.includes("Winner") || m.awayTeam.includes("Winner");
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''} ${pred ? 'shadow-md shadow-indigo-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-1.5">
                           <span>Match {m.id}</span>
@@ -1959,11 +2138,25 @@ function App() {
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
                     const isPlaceholder = m.homeTeam.includes("Winner") || m.awayTeam.includes("Winner");
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''} ${pred ? 'shadow-md shadow-indigo-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-1.5">
                           <span>Match {m.id}</span>
@@ -2016,11 +2209,25 @@ function App() {
                     const isEliminatedHome = pred && pred.winner !== m.homeTeam;
                     const isEliminatedAway = pred && pred.winner !== m.awayTeam;
                     const isPlaceholder = m.homeTeam.includes("Winner") || m.awayTeam.includes("Winner");
+                    const canAnalyze = isRealTeam(m.homeTeam) && isRealTeam(m.awayTeam);
                     return (
                       <div
                         key={m.id}
-                        onClick={() => pred && setActiveModalMatch({ ...m, pred })}
-                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${pred ? 'border-amber-500/40 hover:border-amber-400 shadow-md shadow-amber-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''}`}
+                        onClick={() => {
+                          if (canAnalyze) {
+                            openHeadToHead({
+                              homeTeam: m.homeTeam,
+                              awayTeam: m.awayTeam,
+                              tournament: "FIFA World Cup",
+                              knockout: true,
+                              neutralGround: true
+                            });
+                          } else if (pred) {
+                            setActiveModalMatch({ ...m, pred });
+                          }
+                        }}
+                        className={`bg-[#0B0F19]/60 backdrop-blur-md border p-3 rounded-2xl transition-all duration-300 relative group hover:scale-[1.02] ${canAnalyze ? 'border-amber-500/40 hover:border-amber-400 shadow-md shadow-amber-500/5 cursor-pointer' : 'border-gray-800'} ${isPlaceholder ? 'opacity-40' : ''} ${pred ? 'shadow-md shadow-amber-500/5' : ''}`}
+                        title={canAnalyze ? "Click to analyze this fixture in Head-to-Head." : undefined}
                       >
                         <div className="flex justify-between items-center text-[7px] text-gray-500 font-black uppercase tracking-wider mb-1.5">
                           <span>Match {m.id}</span>
@@ -2144,17 +2351,36 @@ function App() {
                         <span className="text-center">SF %</span>
                         <span className="text-center">Champ %</span>
                       </div>
-                      {wcMonteCarloResults.map((r: any, idx: number) => (
-                        <div key={idx} className="grid grid-cols-5 items-center bg-[#0B0F19]/40 border border-gray-800/40 p-2.5 rounded-xl text-xs font-semibold text-gray-200">
-                          <span className="col-span-2 flex items-center gap-1.5 font-bold">
-                            <span>{getFlagEmoji(r.team)}</span>
-                            <span>{r.team}</span>
-                          </span>
-                          <span className="text-center">{r.qf}%</span>
-                          <span className="text-center">{r.sf}%</span>
-                          <span className="text-center text-amber-400 font-black">{r.champion}%</span>
-                        </div>
-                      ))}
+                      {wcMonteCarloResults.map((r: any, idx: number) => {
+                        const match = wcBracket.r16.find((m: any) => m.homeTeam === r.team || m.awayTeam === r.team);
+                        const opponent = match ? (match.homeTeam === r.team ? match.awayTeam : match.homeTeam) : "";
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => {
+                              if (match) {
+                                openHeadToHead({
+                                  homeTeam: r.team,
+                                  awayTeam: opponent,
+                                  tournament: "FIFA World Cup",
+                                  knockout: true,
+                                  neutralGround: true
+                                });
+                              }
+                            }}
+                            className="grid grid-cols-5 items-center bg-[#0B0F19]/40 hover:bg-indigo-600/10 border border-gray-800/40 hover:border-indigo-500/30 p-2.5 rounded-xl text-xs font-semibold text-gray-200 cursor-pointer transition-all hover:scale-[1.01]"
+                            title={match ? `Click to analyze ${r.team} vs ${opponent} in Head-to-Head.` : undefined}
+                          >
+                            <span className="col-span-2 flex items-center gap-1.5 font-bold">
+                              <span>{getFlagEmoji(r.team)}</span>
+                              <span>{r.team}</span>
+                            </span>
+                            <span className="text-center">{r.qf}%</span>
+                            <span className="text-center">{r.sf}%</span>
+                            <span className="text-center text-amber-400 font-black">{r.champion}%</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

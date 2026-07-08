@@ -37,7 +37,7 @@ def convert_dates(df: pd.DataFrame, date_cols: list[str], is_year_only: bool = F
         if is_year_only:
             df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
         else:
-            df[col] = pd.to_datetime(df[col], errors='coerce')
+            df[col] = pd.to_datetime(df[col], errors='coerce', format='mixed')
     return df
 
 def standardize_team_names(

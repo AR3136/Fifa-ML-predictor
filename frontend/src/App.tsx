@@ -196,6 +196,14 @@ function App() {
   const [h2hStatsLoading, setH2hStatsLoading] = useState(false);
   const [historyYears, setHistoryYears] = useState<number>(5);
 
+  const tooltipProps = {
+    contentStyle: darkMode 
+      ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } 
+      : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' },
+    itemStyle: darkMode ? { color: '#D1D5DB' } : { color: '#374151' },
+    labelStyle: darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }
+  };
+
   // Check backend health and fetch dynamic teams list
   useEffect(() => {
     getHealth()
@@ -1027,8 +1035,8 @@ function App() {
             <div className="p-8 bg-gradient-to-r from-[#1E293B] to-[#0F172A] rounded-3xl border border-gray-800/80 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
               <div className="absolute right-0 top-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl -z-10"></div>
               <div className="space-y-2">
-                <h2 className="text-3xl font-extrabold tracking-tight">AI-Powered Match Outcome Engine</h2>
-                <p className="text-gray-400 text-base max-w-xl">
+                <h2 className="text-3xl font-extrabold tracking-tight text-white">AI-Powered Match Outcome Engine</h2>
+                <p className="text-blue-100 text-base max-w-xl opacity-80">
                   Simulate fixtures, analyze historical team forms, and evaluate tournament brackets with our tuned CatBoost machine learning model.
                 </p>
               </div>
@@ -1044,7 +1052,7 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-[#151D30] border border-gray-800 p-6 rounded-2xl shadow-lg relative overflow-hidden">
                 <h3 className="text-gray-400 font-bold text-sm mb-2">Total Historic Matches</h3>
-                <p className="text-4xl font-black text-white">49,481</p>
+                <p className="text-4xl font-black text-gray-900 dark:text-white">49,481</p>
                 <div className="absolute right-4 bottom-4 text-blue-500/10">
                   <TrendingUp className="w-16 h-16" />
                 </div>
@@ -1285,11 +1293,7 @@ function App() {
                             >
                               <XAxis type="number" stroke="#6B7280" tick={{ fontSize: 9 }} />
                               <YAxis dataKey="name" type="category" stroke="#6B7280" tick={{ fontSize: 9 }} width={120} />
-                              <Tooltip 
-                                contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
-                                itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
-                                labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
-                              />
+                              <Tooltip {...tooltipProps} />
                               <Bar dataKey="Contribution" fill="#3B82F6" radius={[0, 4, 4, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
@@ -1694,11 +1698,7 @@ function App() {
                         <BarChart data={monteCarloResults.slice(0, 8)}>
                           <XAxis dataKey="team" stroke="#6B7280" tick={{ fontSize: 9 }} />
                           <YAxis stroke="#6B7280" tick={{ fontSize: 9 }} />
-                          <Tooltip 
-                            contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
-                            itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
-                            labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
-                          />
+                          <Tooltip {...tooltipProps} />
                           <Bar dataKey="champion" name="Champion %" fill="#F59E0B" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -2095,11 +2095,7 @@ function App() {
                         <BarChart data={wcMonteCarloResults.slice(0, 8)}>
                           <XAxis dataKey="team" stroke="#6B7280" tick={{ fontSize: 9 }} />
                           <YAxis stroke="#6B7280" tick={{ fontSize: 9 }} />
-                          <Tooltip 
-                            contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
-                            itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
-                            labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
-                          />
+                          <Tooltip {...tooltipProps} />
                           <Bar dataKey="champion" name="Champion %" fill="#F59E0B" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -2245,7 +2241,7 @@ function App() {
                         >
                           <XAxis type="number" stroke="#6B7280" tick={{ fontSize: 9 }} />
                           <YAxis dataKey="name" type="category" stroke="#6B7280" tick={{ fontSize: 8 }} width={120} />
-                          <Tooltip />
+                          <Tooltip {...tooltipProps} />
                           <Bar dataKey="Contribution" fill="#3B82F6" radius={[0, 4, 4, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -2391,7 +2387,7 @@ function App() {
                               <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
                               <XAxis dataKey="date" stroke="#6B7280" tick={{ fontSize: 9 }} />
                               <YAxis stroke="#6B7280" tick={{ fontSize: 9 }} domain={['dataMin - 50', 'dataMax + 50']} />
-                              <Tooltip />
+                              <Tooltip {...tooltipProps} />
                               <Line type="monotone" dataKey="elo" stroke="#3B82F6" strokeWidth={2} dot={false} />
                             </LineChart>
                           </ResponsiveContainer>
@@ -2412,7 +2408,7 @@ function App() {
                               <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
                               <XAxis dataKey="date" stroke="#6B7280" tick={{ fontSize: 9 }} />
                               <YAxis stroke="#6B7280" tick={{ fontSize: 9 }} reversed />
-                              <Tooltip />
+                              <Tooltip {...tooltipProps} />
                               <Line type="monotone" dataKey="rank" stroke="#EF4444" strokeWidth={2} dot={false} />
                             </LineChart>
                           </ResponsiveContainer>
@@ -2447,12 +2443,7 @@ function App() {
                               <Cell fill="#6B7280" />
                               <Cell fill="#EF4444" />
                             </Pie>
-                            <Tooltip 
-                              formatter={(v: any) => `${(v * 100).toFixed(1)}%`}
-                              contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
-                              itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
-                              labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
-                            />
+                            <Tooltip formatter={(v: any) => `${(v * 100).toFixed(1)}%`} {...tooltipProps} />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
@@ -2472,11 +2463,7 @@ function App() {
                           <BarChart data={teamStats.goal_distribution}>
                             <XAxis dataKey="goals" stroke="#6B7280" />
                             <YAxis stroke="#6B7280" />
-                            <Tooltip 
-                              contentStyle={darkMode ? { backgroundColor: '#151D30', borderColor: '#1F2937', borderRadius: '12px', color: '#fff' } : { backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '12px', color: '#111827' }}
-                              itemStyle={darkMode ? { color: '#D1D5DB' } : { color: '#374151' }}
-                              labelStyle={darkMode ? { color: '#F9FAFB', fontWeight: 'bold' } : { color: '#111827', fontWeight: 'bold' }}
-                            />
+                            <Tooltip {...tooltipProps} />
                             <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
@@ -2615,7 +2602,7 @@ function App() {
                           ]}>
                             <XAxis dataKey="name" stroke="#6B7280" />
                             <YAxis stroke="#6B7280" />
-                            <Tooltip />
+                            <Tooltip {...tooltipProps} />
                             <Bar dataKey="Wins" fill="#3B82F6" radius={[6, 6, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
@@ -2633,7 +2620,7 @@ function App() {
                           ]}>
                             <XAxis dataKey="name" stroke="#6B7280" />
                             <YAxis stroke="#6B7280" />
-                            <Tooltip />
+                            <Tooltip {...tooltipProps} />
                             <Bar dataKey="Goals" fill="#10B981" radius={[6, 6, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
@@ -2663,7 +2650,7 @@ function App() {
                   <BarChart data={modelMetrics} layout="vertical">
                     <XAxis type="number" stroke="#6B7280" domain={[0, 1]} />
                     <YAxis dataKey="name" type="category" stroke="#6B7280" width={120} />
-                    <Tooltip />
+                    <Tooltip {...tooltipProps} />
                     <Legend />
                     <Bar dataKey="Accuracy" fill="#3B82F6" radius={[0, 4, 4, 0]} />
                     <Bar dataKey="F1" fill="#F59E0B" radius={[0, 4, 4, 0]} />
@@ -2681,7 +2668,7 @@ function App() {
                   <BarChart data={featureImportances}>
                     <XAxis dataKey="name" stroke="#6B7280" />
                     <YAxis stroke="#6B7280" />
-                    <Tooltip />
+                    <Tooltip {...tooltipProps} />
                     <Bar dataKey="Importance" fill="#10B981" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>

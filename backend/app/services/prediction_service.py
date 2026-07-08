@@ -366,10 +366,3 @@ class PredictionService:
             "model_version": f"Shootout-{self.so_model_name}"
         }
 
-    def get_all_teams(self) -> list:
-        """Extracts and returns a sorted list of unique team names from features dataset."""
-        if self.df is None:
-            return []
-        teams = set(self.df['home_team'].dropna().unique()) | set(self.df['away_team'].dropna().unique())
-        return sorted(list(teams))
-

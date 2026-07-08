@@ -381,8 +381,3 @@ def simulate_monte_carlo_endpoint(payload: dict):
         
     results = sorted(results, key=lambda x: x["champion"], reverse=True)
     return {"results": results}
-
-@router.get("/teams", summary="Get sorted list of all unique team names")
-def get_teams():
-    """Returns a sorted list of unique team names available in the dataset."""
-    return prediction_service.get_all_teams()

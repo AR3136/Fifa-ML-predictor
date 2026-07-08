@@ -1177,7 +1177,7 @@ function App() {
               </div>
               <div className="bg-[#151D30] border border-gray-800 p-6 rounded-2xl shadow-lg relative overflow-hidden">
                 <h3 className="text-gray-400 font-bold text-sm mb-2">Active World Cup Squads</h3>
-                <p className="text-4xl font-black text-blue-400">32</p>
+                <p className="text-4xl font-black text-blue-400">8</p>
                 <div className="absolute right-4 bottom-4 text-blue-500/10">
                   <Globe2 className="w-16 h-16" />
                 </div>

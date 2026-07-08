@@ -106,5 +106,14 @@ def test_get_matches():
     data = response.json()
     assert isinstance(data, list)
 
+def test_teams():
+    response = client.get("/api/v1/teams")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) > 0
+    assert "France" in data
+
+
 
 

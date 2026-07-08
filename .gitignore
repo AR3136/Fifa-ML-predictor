@@ -53,7 +53,7 @@ node_modules/
 Thumbs.db
 
 # Machine Learning & Large Data files
-/datasets/processed/
+/datasets/processed/*
 /datasets/raw/*.csv
 /models/*.joblib
 /models/*.pkl
@@ -61,6 +61,8 @@ Thumbs.db
 /models/*.onnx
 !/models/best_model.joblib
 !/models/shootout_model.joblib
+!/datasets/processed/engineered_features.csv
+!/datasets/processed/shootouts.csv
 !/datasets/raw/eloratings.csv
 !/datasets/raw/fifa_mens_rank.csv
 !/datasets/raw/former_names.csv

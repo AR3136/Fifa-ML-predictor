@@ -39,7 +39,32 @@ class PredictionService:
         import logging
         logger = logging.getLogger("uvicorn.error")
 
-        # Load main model bundle
+        # 1. Print and locate Features Database
+        from pathlib import Path
+        print(FEATURES_PATH)
+        feat_path = Path(FEATURES_PATH)
+        print(feat_path.exists())
+        
+        try:
+            if not feat_path.exists():
+                # Automatically search for engineered_features.csv within the project
+                print("Searching for engineered_features.csv dynamically...")
+                found = list(Path(__file__).resolve().parents[3].rglob("engineered_features.csv"))
+                if found:
+                    feat_path = found[0]
+                    print(f"Discovered file dynamically at: {feat_path}")
+                else:
+                    raise FileNotFoundError(f"Could not locate engineered_features.csv in project directory.")
+            
+            self.df = pd.read_csv(feat_path)
+            self.df['date'] = pd.to_datetime(self.df['date'])
+            logger.info("✓ Features database loaded successfully")
+            print("✓ Features database found")
+        except Exception as e:
+            logger.exception("Failed to load features database")
+            raise RuntimeError(f"Failed to load features database from {FEATURES_PATH}") from e
+
+        # 2. Load main model bundle
         try:
             self.bundle = joblib.load(MODEL_PATH)
             self.model = self.bundle['model']
@@ -47,14 +72,15 @@ class PredictionService:
             self.features = self.bundle['features']
             self.model_name = self.bundle.get('model_name', 'Unknown')
             logger.info("✓ Match model loaded successfully")
-            print("✓ Match model loaded")
+            print("✓ Model loaded")
             if self.scaler is not None:
-                print("✓ Encoder loaded")
+                print("✓ Scaler loaded")
+                print("✓ Encoders loaded")
         except Exception as e:
             logger.exception("Failed to load match model")
             raise RuntimeError(f"Failed to load match model from {MODEL_PATH}") from e
 
-        # Load shootout model bundle
+        # 3. Load shootout model bundle
         try:
             self.so_bundle = joblib.load(SHOOTOUT_MODEL_PATH)
             self.so_model = self.so_bundle['model']
@@ -65,22 +91,18 @@ class PredictionService:
         except Exception as e:
             logger.exception("Failed to load penalty model")
             raise RuntimeError(f"Failed to load penalty model from {SHOOTOUT_MODEL_PATH}") from e
-            
-        # Load dataset to extract team history/latest features
-        try:
-            self.df = pd.read_csv(FEATURES_PATH)
-            self.df['date'] = pd.to_datetime(self.df['date'])
-            logger.info("✓ Team database loaded successfully")
-            print("✓ Team database loaded")
-            print("✓ Feature engineering initialized")
-        except Exception as e:
-            logger.exception("Failed to load features database")
-            raise RuntimeError(f"Failed to load features database from {FEATURES_PATH}") from e
 
-        # Load shootout data for historical stats
+        # 4. Load shootout data for historical stats
+        so_path = Path(SHOOTOUTS_DATA_PATH)
         try:
-            self.so_df = pd.read_csv(SHOOTOUTS_DATA_PATH)
+            if not so_path.exists():
+                print("Searching for shootouts.csv dynamically...")
+                found_so = list(Path(__file__).resolve().parents[3].rglob("shootouts.csv"))
+                if found_so:
+                    so_path = found_so[0]
+            self.so_df = pd.read_csv(so_path)
             self.so_df['date'] = pd.to_datetime(self.so_df['date'])
+            print("✓ Prediction service initialized")
         except Exception as e:
             logger.exception("Failed to load shootouts database")
             raise RuntimeError(f"Failed to load shootouts database from {SHOOTOUTS_DATA_PATH}") from e

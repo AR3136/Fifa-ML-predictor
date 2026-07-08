@@ -200,10 +200,11 @@ function App() {
       .then(data => setHealthStatus(data.status === "healthy" ? "Online" : "Offline"))
       .catch(() => setHealthStatus("Offline (Check API)"));
 
-    api.get('teams')
+    api.get('api/v1/teams')
       .then(res => {
-        if (res.data && res.data.length > 0) {
-          setTeamsList(res.data);
+        const teams = Array.isArray(res.data) ? res.data : (res.data && res.data.teams);
+        if (teams && teams.length > 0) {
+          setTeamsList(teams);
         }
       })
       .catch(err => console.error("Error loading teams list from backend:", err));
@@ -225,7 +226,7 @@ function App() {
   useEffect(() => {
     if (activeTab === 'team' && analyticsMode === 'h2h_compare') {
       setH2hStatsLoading(true);
-      api.get(`analytics/head-to-head?team1=${selectedTeam}&team2=${compareTeam}`)
+      api.get(`api/v1/head-to-head?team1=${selectedTeam}&team2=${compareTeam}`)
         .then(res => setH2hStats(res.data))
         .catch(e => console.error(e))
         .finally(() => setH2hStatsLoading(false));
@@ -242,7 +243,7 @@ function App() {
     }
     setH2hLoading(true);
     try {
-      const res = await api.post('predict', {
+      const res = await api.post('api/v1/predict', {
         home_team: homeTeam,
         away_team: awayTeam,
         tournament,
@@ -347,7 +348,7 @@ function App() {
     }
     setPredictingFixtureId(match.id);
     try {
-      const res = await api.post('predict', {
+      const res = await api.post('api/v1/predict', {
         home_team: match.homeTeam,
         away_team: match.awayTeam,
         tournament: "FIFA World Cup",
@@ -396,7 +397,7 @@ function App() {
       const tempMatches = { ...simMatches };
 
       const predictPair = async (h: string, a: string) => {
-        const res = await api.post('predict', {
+        const res = await api.post('api/v1/predict', {
           home_team: h,
           away_team: a,
           tournament: "FIFA World Cup",
@@ -501,7 +502,7 @@ function App() {
   const handleMonteCarloSimulate = async () => {
     setMonteCarloLoading(true);
     try {
-      const res = await api.post('simulate-monte-carlo', {
+      const res = await api.post('api/v1/simulate-monte-carlo', {
         matches: bracket.r16.map((m: any) => ({
           homeTeam: m.homeTeam,
           awayTeam: m.awayTeam
@@ -584,7 +585,7 @@ function App() {
     }
     setPredictingFixtureId(match.id);
     try {
-      const res = await api.post('predict', {
+      const res = await api.post('api/v1/predict', {
         home_team: match.homeTeam,
         away_team: match.awayTeam,
         tournament: "FIFA World Cup",
@@ -633,7 +634,7 @@ function App() {
       const tempMatches = { ...wcSimMatches };
 
       const predictPair = async (h: string, a: string) => {
-        const res = await api.post('predict', {
+        const res = await api.post('api/v1/predict', {
           home_team: h,
           away_team: a,
           tournament: "FIFA World Cup",
@@ -718,7 +719,7 @@ function App() {
   const handleWcMonteCarloSimulate = async () => {
     setMonteCarloLoading(true);
     try {
-      const res = await api.post('simulate-monte-carlo', {
+      const res = await api.post('api/v1/simulate-monte-carlo', {
         matches: wcBracket.r16.map((m: any) => ({
           homeTeam: m.homeTeam,
           awayTeam: m.awayTeam

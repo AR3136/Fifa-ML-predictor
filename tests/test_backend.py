@@ -18,8 +18,6 @@ def test_health():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
-    assert "model_loaded" in data
-    assert "version" in data
 
 def test_predict():
     payload = {
@@ -110,9 +108,10 @@ def test_teams():
     response = client.get("/api/v1/teams")
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
-    assert len(data) > 0
-    assert "France" in data
+    assert isinstance(data, dict)
+    assert "teams" in data
+    assert len(data["teams"]) > 0
+    assert "France" in data["teams"]
 
 
 

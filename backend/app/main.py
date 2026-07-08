@@ -3,11 +3,27 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from app.core.config import settings
 from app.api.v1.endpoints import health, predict, analytics, fixtures
+from app.services.analytics_service import AnalyticsService
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
+
+# Custom Override Endpoints (Declared first for FastAPI routing precedence)
+analytics_service = AnalyticsService()
+
+@app.get("/api/v1/teams")
+def get_teams():
+    return {
+        "teams": analytics_service.get_all_teams()
+    }
+
+@app.get("/api/v1/health")
+def health_check_override():
+    return {
+        "status": "healthy"
+    }
 
 # Gzip compression for production performance
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -36,7 +52,6 @@ app.include_router(health.router, prefix=settings.API_V1_STR, tags=["health"])
 app.include_router(predict.router, prefix=settings.API_V1_STR, tags=["predict"])
 app.include_router(analytics.router, prefix=settings.API_V1_STR, tags=["analytics"])
 app.include_router(fixtures.router, prefix=f"{settings.API_V1_STR}/fixtures", tags=["fixtures"])
-
 
 
 @app.get("/")

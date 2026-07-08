@@ -2,16 +2,31 @@ import os
 import joblib
 import pandas as pd
 import numpy as np
+import traceback
+from pathlib import Path
 
 def resolve_path(relative_path: str) -> str:
     env_root = os.getenv("FIFA_PROJECT_ROOT")
     if env_root:
-        return os.path.abspath(os.path.join(env_root, relative_path))
-    local_win = os.path.join("C:/Users/Admin/Desktop/Fifa prediction", relative_path)
-    if os.path.exists(local_win):
-        return local_win
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(this_dir, "..", "..", "..", "..", relative_path))
+        return str(Path(env_root) / relative_path)
+        
+    this_file = Path(__file__).resolve()
+    
+    # Try traversing parents to find root containing models/ or datasets/
+    root_dir = None
+    for idx in range(2, 6):
+        if idx < len(this_file.parents):
+            parent = this_file.parents[idx]
+            if (parent / "models").exists() or (parent / "datasets").exists():
+                root_dir = parent
+                break
+                
+    if not root_dir:
+        # Fallback to standard 3rd parent
+        root_dir = this_file.parents[3]
+        
+    resolved = root_dir / relative_path
+    return str(resolved.resolve())
 
 MODEL_PATH = resolve_path("models/best_model.joblib")
 SHOOTOUT_MODEL_PATH = resolve_path("models/shootout_model.joblib")
@@ -21,42 +36,75 @@ SHOOTOUTS_DATA_PATH = resolve_path("datasets/processed/shootouts.csv")
 
 class PredictionService:
     def __init__(self):
-        # Load main model bundle if exists
-        if os.path.exists(MODEL_PATH):
-            self.bundle = joblib.load(MODEL_PATH)
-            self.model = self.bundle['model']
-            self.scaler = self.bundle.get('scaler')
-            self.features = self.bundle['features']
-            self.model_name = self.bundle.get('model_name', 'Unknown')
-        else:
+        # Load main model bundle
+        try:
+            if os.path.exists(MODEL_PATH):
+                self.bundle = joblib.load(MODEL_PATH)
+                self.model = self.bundle['model']
+                self.scaler = self.bundle.get('scaler')
+                self.features = self.bundle['features']
+                self.model_name = self.bundle.get('model_name', 'Unknown')
+                print("✓ Match model loaded")
+                if self.scaler is not None:
+                    print("✓ Encoder loaded")
+            else:
+                self.model = None
+                self.features = []
+                self.model_name = "None"
+                print("✗ Match model not found at path:", MODEL_PATH)
+        except Exception as e:
             self.model = None
             self.features = []
             self.model_name = "None"
+            print(f"✗ Failed to load match model:")
+            traceback.print_exc()
 
-        # Load shootout model bundle if exists
-        if os.path.exists(SHOOTOUT_MODEL_PATH):
-            self.so_bundle = joblib.load(SHOOTOUT_MODEL_PATH)
-            self.so_model = self.so_bundle['model']
-            self.so_features = self.so_bundle['features']
-            self.so_model_name = self.so_bundle.get('model_name', 'Unknown')
-        else:
+        # Load shootout model bundle
+        try:
+            if os.path.exists(SHOOTOUT_MODEL_PATH):
+                self.so_bundle = joblib.load(SHOOTOUT_MODEL_PATH)
+                self.so_model = self.so_bundle['model']
+                self.so_features = self.so_bundle['features']
+                self.so_model_name = self.so_bundle.get('model_name', 'Unknown')
+                print("✓ Penalty model loaded")
+            else:
+                self.so_model = None
+                self.so_features = []
+                self.so_model_name = "None"
+                print("✗ Penalty model not found at path:", SHOOTOUT_MODEL_PATH)
+        except Exception as e:
             self.so_model = None
             self.so_features = []
             self.so_model_name = "None"
+            print(f"✗ Failed to load penalty model:")
+            traceback.print_exc()
             
         # Load dataset to extract team history/latest features
-        if os.path.exists(FEATURES_PATH):
-            self.df = pd.read_csv(FEATURES_PATH)
-            self.df['date'] = pd.to_datetime(self.df['date'])
-        else:
+        try:
+            if os.path.exists(FEATURES_PATH):
+                self.df = pd.read_csv(FEATURES_PATH)
+                self.df['date'] = pd.to_datetime(self.df['date'])
+                print("✓ Team database loaded")
+                print("✓ Feature engineering initialized")
+            else:
+                self.df = None
+                print("✗ Features database not found at path:", FEATURES_PATH)
+        except Exception as e:
             self.df = None
+            print(f"✗ Failed to load features database:")
+            traceback.print_exc()
 
         # Load shootout data for historical stats
-        if os.path.exists(SHOOTOUTS_DATA_PATH):
-            self.so_df = pd.read_csv(SHOOTOUTS_DATA_PATH)
-            self.so_df['date'] = pd.to_datetime(self.so_df['date'])
-        else:
+        try:
+            if os.path.exists(SHOOTOUTS_DATA_PATH):
+                self.so_df = pd.read_csv(SHOOTOUTS_DATA_PATH)
+                self.so_df['date'] = pd.to_datetime(self.so_df['date'])
+            else:
+                self.so_df = None
+        except Exception as e:
             self.so_df = None
+            print(f"✗ Failed to load shootouts database:")
+            traceback.print_exc()
 
 
     def _resolve_team_name(self, team_name: str) -> str:

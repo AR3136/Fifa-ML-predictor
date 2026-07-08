@@ -1,16 +1,30 @@
 import os
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
 def resolve_path(relative_path: str) -> str:
     env_root = os.getenv("FIFA_PROJECT_ROOT")
     if env_root:
-        return os.path.abspath(os.path.join(env_root, relative_path))
-    local_win = os.path.join("C:/Users/Admin/Desktop/Fifa prediction", relative_path)
-    if os.path.exists(local_win):
-        return local_win
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(this_dir, "..", "..", "..", "..", relative_path))
+        return str(Path(env_root) / relative_path)
+        
+    this_file = Path(__file__).resolve()
+    
+    # Try traversing parents to find root containing models/ or datasets/
+    root_dir = None
+    for idx in range(2, 6):
+        if idx < len(this_file.parents):
+            parent = this_file.parents[idx]
+            if (parent / "models").exists() or (parent / "datasets").exists():
+                root_dir = parent
+                break
+                
+    if not root_dir:
+        # Fallback to standard 3rd parent
+        root_dir = this_file.parents[3]
+        
+    resolved = root_dir / relative_path
+    return str(resolved.resolve())
 
 FEATURES_PATH = resolve_path("datasets/processed/engineered_features.csv")
 SHOOTOUTS_PATH = resolve_path("datasets/processed/shootouts.csv")

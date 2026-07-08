@@ -57,6 +57,8 @@ const getFlagEmoji = (country: string) => {
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'h2h' | 'simulator' | 'wc2026' | 'team' | 'model' | 'settings'>('home');
   const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [healthStatus, setHealthStatus] = useState<string>("Checking...");
+  const [isModelLoaded, setIsModelLoaded] = useState<boolean | null>(null);
   
   useEffect(() => {
     if (darkMode) {
@@ -66,7 +68,6 @@ function App() {
     }
   }, [darkMode]);
 
-  const [healthStatus, setHealthStatus] = useState<string>("Checking...");
   const [teamsList, setTeamsList] = useState<string[]>(TEAMS_LIST);
   
   // H2H Form state
@@ -197,8 +198,19 @@ function App() {
   // Check backend health and fetch dynamic teams list
   useEffect(() => {
     getHealth()
-      .then(data => setHealthStatus(data.status === "healthy" ? "Online" : "Offline"))
-      .catch(() => setHealthStatus("Offline (Check API)"));
+      .then(data => {
+        if (data.status === "healthy") {
+          setHealthStatus("Online");
+          setIsModelLoaded(data.model_loaded === true);
+        } else {
+          setHealthStatus("Offline");
+          setIsModelLoaded(false);
+        }
+      })
+      .catch(() => {
+        setHealthStatus("Offline (Check API)");
+        setIsModelLoaded(false);
+      });
 
     api.get('api/v1/teams')
       .then(res => {
@@ -821,9 +833,22 @@ function App() {
           <span className="font-black text-base bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">FIFAPredict</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${healthStatus === 'Online' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-            {healthStatus}
-          </span>
+          <div className="flex items-center gap-1.5 text-[9px] font-bold">
+            {healthStatus === 'Online' ? (
+              <>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                  🟢 API Online
+                </span>
+                <span className={`px-2 py-0.5 rounded-full ${isModelLoaded ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+                  {isModelLoaded ? '🟢 Model Loaded' : '🔴 Model Not Loaded'}
+                </span>
+              </>
+            ) : (
+              <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">
+                🔴 API Offline ({healthStatus})
+              </span>
+            )}
+          </div>
           <button 
             onClick={() => setDarkMode(!darkMode)}
             className="p-1.5 rounded-lg bg-gray-800/40 border border-gray-800/60 text-gray-400 hover:text-white transition-all shrink-0"
@@ -956,14 +981,33 @@ function App() {
         </nav>
 
         {/* Status Indicator */}
-        <div className="p-4 border-t border-gray-800/60 text-xs">
-          <div className="flex items-center justify-between text-gray-400 font-semibold mb-2">
-            <span>API Connection:</span>
-            <span className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] ${healthStatus === 'Online' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-              {healthStatus}
-            </span>
+        <div className="p-4 border-t border-gray-800/60 text-[10px] space-y-2">
+          <div className="flex flex-col gap-1.5 font-bold">
+            {healthStatus === 'Online' ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">API Connection:</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                    🟢 API Online
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Model Status:</span>
+                  <span className={`px-2 py-0.5 rounded-full ${isModelLoaded ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+                    {isModelLoaded ? '🟢 Model Loaded' : '🔴 Model Not Loaded'}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">API Connection:</span>
+                <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">
+                  🔴 API Offline
+                </span>
+              </div>
+            )}
           </div>
-          <div className="text-gray-500 text-[10px]">Version: 1.0.0-production</div>
+          <div className="text-gray-500 text-[9px] pt-1">Version: 1.0.0-production</div>
         </div>
       </aside>
 

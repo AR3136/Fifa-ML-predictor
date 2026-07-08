@@ -18,6 +18,10 @@ def test_health():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
+    assert "model_loaded" in data
+    assert "penalty_model_loaded" in data
+    assert "team_count" in data
+    assert "version" in data
 
 def test_predict():
     payload = {

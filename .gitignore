@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv
+venv/
+ENV/
+env/
+.env
+
+# NodeJS / Frontend
+node_modules/
+/frontend/dist/
+.eslintcache
+.parcel-cache
+.cache/
+.vite
+
+# IDEs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# Databases & OS
+*.db
+*.sqlite
+*.sqlite3
+.DS_Store
+Thumbs.db
+
+# Machine Learning & Large Data files
+/datasets/processed/
+/datasets/raw/*.csv
+/models/*.joblib
+/models/*.pkl
+/models/*.h5
+/models/*.onnx
+!/datasets/raw/eloratings.csv
+!/datasets/raw/fifa_mens_rank.csv
+!/datasets/raw/former_names.csv
+!/datasets/raw/goalscorers.csv
+!/datasets/raw/results.csv
+!/datasets/raw/shootouts.csv

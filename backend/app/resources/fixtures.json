@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "round": "Round of 16",
+    "homeTeam": "Spain",
+    "awayTeam": "Belgium",
+    "date": "2026-07-04",
+    "stadium": "MetLife Stadium",
+    "knockout": true
+  },
+  {
+    "id": 2,
+    "round": "Round of 16",
+    "homeTeam": "France",
+    "awayTeam": "Morocco",
+    "date": "2026-07-04",
+    "stadium": "Hard Rock Stadium",
+    "knockout": true
+  },
+  {
+    "id": 3,
+    "round": "Round of 16",
+    "homeTeam": "Norway",
+    "awayTeam": "England",
+    "date": "2026-07-05",
+    "stadium": "Gillette Stadium",
+    "knockout": true
+  },
+  {
+    "id": 4,
+    "round": "Round of 16",
+    "homeTeam": "Argentina",
+    "awayTeam": "Egypt",
+    "date": "2026-07-05",
+    "stadium": "Mercedes-Benz Stadium",
+    "knockout": true
+  },
+  {
+    "id": 5,
+    "round": "Round of 16",
+    "homeTeam": "Brazil",
+    "awayTeam": "Switzerland",
+    "date": "2026-07-06",
+    "stadium": "Arrowhead Stadium",
+    "knockout": true
+  },
+  {
+    "id": 6,
+    "round": "Round of 16",
+    "homeTeam": "Colombia",
+    "awayTeam": "Netherlands",
+    "date": "2026-07-06",
+    "stadium": "SoFi Stadium",
+    "knockout": true
+  },
+  {
+    "id": 7,
+    "round": "Round of 16",
+    "homeTeam": "Japan",
+    "awayTeam": "Portugal",
+    "date": "2026-07-07",
+    "stadium": "Levi's Stadium",
+    "knockout": true
+  },
+  {
+    "id": 8,
+    "round": "Round of 16",
+    "homeTeam": "Germany",
+    "awayTeam": "Uruguay",
+    "date": "2026-07-07",
+    "stadium": "NRG Stadium",
+    "knockout": true
+  },
+  {
+    "id": "qf_1",
+    "round": "Quarter Final",
+    "homeTeam": "Winner of Round of 16 (1)",
+    "awayTeam": "Winner of Round of 16 (2)",
+    "date": "2026-07-10T18:00:00Z",
+    "stadium": "Gillette Stadium, Boston",
+    "knockout": true
+  },
+  {
+    "id": "qf_2",
+    "round": "Quarter Final",
+    "homeTeam": "Argentina",
+    "awayTeam": "France",
+    "date": "2026-07-10T21:00:00Z",
+    "stadium": "Hard Rock Stadium, Miami",
+    "knockout": true
+  },
+  {
+    "id": "qf_3",
+    "round": "Quarter Final",
+    "homeTeam": "Brazil",
+    "awayTeam": "Winner of Round of 16 (3)",
+    "date": "2026-07-11T18:00:00Z",
+    "stadium": "Arrowhead Stadium, Kansas City",
+    "knockout": true
+  },
+  {
+    "id": "qf_4",
+    "round": "Quarter Final",
+    "homeTeam": "Spain",
+    "awayTeam": "England",
+    "date": "2026-07-11T21:00:00Z",
+    "stadium": "AT&T Stadium, Dallas",
+    "knockout": true
+  }
+]
